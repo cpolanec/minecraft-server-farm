@@ -1,0 +1,32 @@
+name: sync-aws-resources
+on:
+  push:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  sync-vpc-foundation:
+    name: sync VPC foundation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout git repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Deploy VPC foundation with CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: minecraft-network-main
+          template: aws-vpc-foundation.yml
+          role-arn: ${{ secrets.AWS_CLOUDFORMATION_ROLE_ARN }}
+          no-fail-on-empty-changeset: '1'
+          parameter-overrides: 'Environment=main'
