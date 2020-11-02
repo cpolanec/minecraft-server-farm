@@ -1,0 +1,8 @@
+
+# Additions to generated content from gitignore.io
+
+### AWS-related files ###
+*.pem
+*.validated.yml
+
+# End of additions to generated content from gitignore.io
