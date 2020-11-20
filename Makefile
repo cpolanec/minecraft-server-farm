@@ -1,11 +1,6 @@
 SHELL = /bin/sh
 
 #
-# get environment variables
-#
--include .env
-
-#
 # define CLI prefix for commands
 #
 BLUE_ = \033[34m
@@ -24,15 +19,10 @@ define header
 endef
 
 #
-# common values
-#
-stack-name := minecraft-network-$(ENVIRONMENT)
-
-#
 # configure goals
 #
-default: clean network
-.PHONY: .gitignore clean network
+default: clean network templates servers
+.PHONY: .gitignore clean destroy network templates servers
 
 #
 # create .gitignore file
@@ -50,29 +40,38 @@ default: clean network
 clean:
 	$(call header)
 	$(call prompt)
-	rm -f *.validated.yml
+	rm -f **/*.validated.json
 destroy: clean
 	$(call header)
 	$(call prompt)
-	aws cloudformation delete-stack \
-	  --stack-name $(stack-name) --role-arn $(CLOUDFORMATION_ROLE_ARN)
+	./servers/destroy-resources.sh --all
 	$(call prompt)
-	aws cloudformation wait stack-delete-complete --stack-name $(stack-name)
+	./templates/destroy-resources.sh
+	$(call prompt)
+	./network/destroy-resources.sh
 
 #
-# deploy Minecraft networking components
+# deploy networking components
 #
-aws-vpc-foundation.validated.yml: aws-vpc-foundation.yml
+network:
 	$(call header)
 	$(call prompt)
-	aws cloudformation validate-template --template-body file://./$< > $@
+	./network/sync-resources.sh
+
+#
+# deploy EC2 launch templates
+#
+templates: | network
+	$(call header)
 	$(call prompt)
-	aws cloudformation deploy \
-	  --stack-name $(stack-name) \
-	  --role-arn $(CLOUDFORMATION_ROLE_ARN) \
-	  --no-fail-on-empty-changeset \
-	  --template-file $< \
-	  --s3-bucket $(CLOUDFORMATION_S3_BUCKET) \
-	  --s3-prefix $(stack-name) \
-	  --parameter-overrides Environment=$(ENVIRONMENT)
-network: aws-vpc-foundation.validated.yml
+	./templates/sync-resources.sh
+
+#
+# deploy game servers
+#
+servers: | network templates
+	$(call header)
+	$(call prompt)
+	./servers/sync-resources.sh
+	$(call prompt)
+	./servers/destroy-resources.sh --only-orphans

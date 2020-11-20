@@ -50,10 +50,8 @@ Temporary Items
 
 ### VisualStudioCode ###
 .vscode/*
-!.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
-!.vscode/extensions.json
 *.code-workspace
 
 ### VisualStudioCode Patch ###
@@ -93,6 +91,7 @@ $RECYCLE.BIN/
 
 ### AWS-related files ###
 *.pem
-*.validated.yml
+*.validated.json
+*.iam.json
 
 # End of additions to generated content from gitignore.io

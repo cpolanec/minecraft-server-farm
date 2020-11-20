@@ -1,14 +1,19 @@
 name: sync-aws-resources
 on:
-  push:
-    branches: [main]
+  push: [main]
 
 env:
   AWS_REGION: us-east-1
+  CLOUDFORMATION_ROLE_ARN: ${{ secrets.AWS_CLOUDFORMATION_ROLE_ARN }}
+  SSH_KEY_NAME: ${{ secrets.AWS_SSH_KEY_NAME }}
+
+  ENVIRONMENT: main
+  NETWORK_STACK_NAME: minecraft-network-main
+  EC2_TEMPLATES_STACK_NAME: minecraft-ec2templates-main
 
 jobs:
-  sync-vpc-foundation:
-    name: sync VPC foundation
+  sync-aws-resources:
+    name: sync aws resources
     runs-on: ubuntu-latest
 
     steps:
@@ -22,11 +27,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Deploy VPC foundation with CloudFormation
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
-        with:
-          name: minecraft-network-main
-          template: aws-vpc-foundation.yml
-          role-arn: ${{ secrets.AWS_CLOUDFORMATION_ROLE_ARN }}
-          no-fail-on-empty-changeset: '1'
-          parameter-overrides: 'Environment=main'
+      - name: Deploy VPC networking foundation
+        run: ./network/sync-resources.sh
+
+      - name: Deploy EC2 Launch Templates
+        run: ./templates/sync-resources.sh
+
+      - name: Deploy Minecraft game servers
+        run: ./servers/sync-resources.sh
+
+      - name: Delete orphaned Minecraft game servers
+        run: ./servers/destroy-resources.sh --only-orphans

@@ -1,25 +1,36 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description: >
-  Networking stack for Minecraft server runtime
+Description: Networking stack for Minecraft server runtime
 
 Parameters:
   ApplicationName:
     Type: String
     Default: minecraft
     AllowedValues: [minecraft]
-    Description: Application name will be used to prefix resource names (always 'minecraft').
+    Description: Application name will be used to prefix resource names (always 'minecraft')
   Environment:
     Type: String
-    Description: Environment name will be appended to resource names.
+    Description: Environment name will be appended to resource names
   VpcCidrBlock:
     Type: String
     Default: 10.0.0.0/16
-    Description: CIDR block for application VPC.
+    Description: CIDR block for application VPC
   Subnet1CidrBlock:
     Type: String
     Default: 10.0.0.0/24
-    Description: CIDR block for public subnet.
+    Description: CIDR block for public subnet
+
+Outputs:
+  SecurityGroupId:
+    Description: Resource ID for the Security Group
+    Value: !Ref MinecraftSecurityGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-sg
+  SubnetId:
+    Description: Resource ID for the Subnet
+    Value: !Ref MinecraftSubnet1
+    Export:
+      Name: !Sub ${AWS::StackName}-subnet
 
 Resources:
   # ---------------------------------------------
@@ -205,11 +216,11 @@ Resources:
   # Security Group definitions
   #
 
-  MinecraftSshSecurityGroup:
+  MinecraftSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref MinecraftVPC
-      GroupName: minecraft-sg
+      GroupName: !Sub ${ApplicationName}-sg-${Environment}
       GroupDescription: Minecraft server firewall rules
       SecurityGroupIngress:
         - IpProtocol: 6 # TCP
