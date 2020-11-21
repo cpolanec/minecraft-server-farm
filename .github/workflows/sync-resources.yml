@@ -1,20 +1,58 @@
-name: sync-aws-resources
-on:
-  push: [main]
+#
+# apply changes to Minecraft server farm resources
+# (e.g. new installations, resource upgrades, and testing feature branches)
+#
+name: sync-resources
+on: push
 
+# environment variables that are independant of current branch
 env:
   AWS_REGION: us-east-1
   CLOUDFORMATION_ROLE_ARN: ${{ secrets.AWS_CLOUDFORMATION_ROLE_ARN }}
   SSH_KEY_NAME: ${{ secrets.AWS_SSH_KEY_NAME }}
-
-  ENVIRONMENT: main
-  NETWORK_STACK_NAME: minecraft-network-main
-  EC2_TEMPLATES_STACK_NAME: minecraft-ec2templates-main
+  MINECRAFT_RCON_PASSWORD: ${{ secrets.MINECRAFT_RCON_PASSWORD }}
 
 jobs:
-  sync-aws-resources:
-    name: sync aws resources
+  init:
+    #
+    # establish environment variables based on the current branch
+    # (see project README for further explanation of the environment variables)
+    #
+    name: init env variables
     runs-on: ubuntu-latest
+
+    outputs:
+      environment: ${{ steps.setenv.outputs.environment }}
+      network_stack_name: ${{ steps.setenv.outputs.network_stack_name }}
+      templates_stack_name: ${{ steps.setenv.outputs.templates_stack_name }}
+
+    steps:
+      - name: Set environment variables based on git branch
+        id: setenv
+        run: |
+          if [[ "${{github.ref}}" == "ref/heads/main" ]]; then
+            echo "::set-output name=environment::main"
+            echo "::set-output name=network_stack_name::minecraft-network-main"
+            echo "::set-output name=templates_stack_name::minecraft-ec2templates-main"
+          else
+            echo "::set-output name=environment::test"
+            echo "::set-output name=network_stack_name::minecraft-network-test"
+            echo "::set-output name=templates_stack_name::minecraft-ec2templates-test"
+          fi
+
+  deploy:
+    #
+    # deploy all changes
+    # (if testing: cleanup resources created from feature branch)
+    #
+    name: deploy aws changes
+    runs-on: ubuntu-latest
+    needs: init
+
+    env:
+      ENVIRONMENT: ${{ needs.init.outputs.environment }}
+      NETWORK_STACK_NAME: ${{ needs.init.outputs.network_stack_name }}
+      EC2_TEMPLATES_STACK_NAME: ${{ needs.init.outputs.templates_stack_name }}
 
     steps:
       - name: Checkout git repository
@@ -38,3 +76,10 @@ jobs:
 
       - name: Delete orphaned Minecraft game servers
         run: ./servers/destroy-resources.sh --only-orphans
+
+      - name: Cleanup resources used in testing
+        if: (!endsWith(github.ref, '/main'))
+        run: |
+          ./servers/destroy-resources.sh --all
+          ./templates/destroy-resources.sh
+          ./network/destroy-resources.sh
