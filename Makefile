@@ -32,7 +32,7 @@ default: clean network templates servers
 	$(call prompt)
 	curl https://www.toptal.com/developers/gitignore/api/dotenv,linux,osx,visualstudiocode,windows > $@
 	$(call prompt) 
-	cat utils/gitignore.io-ext >> $@
+	cat .utils/gitignore.io-ext >> $@
 
 #
 # remove generated files from project
