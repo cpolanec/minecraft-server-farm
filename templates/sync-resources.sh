@@ -25,5 +25,6 @@ aws cloudformation deploy \
   --parameter-overrides \
     Environment=$ENVIRONMENT \
     NetworkStackName=$NETWORK_STACK_NAME \
-    SshKeyName=$SSH_KEY_NAME
+    SshKeyName=$SSH_KEY_NAME \
+    MinecraftRconPassword=$MINECRAFT_RCON_PASSWORD
 echo ""
