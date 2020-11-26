@@ -3,6 +3,7 @@
 
 ### AWS-related files ###
 *.pem
-*.validated.yml
+*.validated.json
+*.iam.json
 
 # End of additions to generated content from gitignore.io
