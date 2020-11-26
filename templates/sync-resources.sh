@@ -7,7 +7,8 @@ echo "*** Deploy EC2 Launch Templates ***"
 echo ""
 
 echo "Launch Template Deployment Parameters:"
-echo "  |- stack name = $EC2_TEMPLATES_STACK_NAME"
+echo "  |- environment = $ENVIRONMENT"
+echo "  |- stack name  = $EC2_TEMPLATES_STACK_NAME"
 echo ""
 
 echo "Validating the CloudFormation template..."

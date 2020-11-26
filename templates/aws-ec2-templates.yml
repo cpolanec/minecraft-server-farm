@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 
 Description: Launch templates for Minecraft EC2 servers
 
@@ -8,7 +8,6 @@ Parameters:
     Description: Environment name will be appended to resource names
   NetworkStackName:
     Type: String
-    AllowedPattern: '^minecraft-network-.*'
     Description: Name of the Minecraft VPC networking stack
   SshKeyName:
     Type: String
