@@ -8,7 +8,7 @@ on:
     branches: ["**"]
     tags-ignore: ["v*.*"]
 
-# environment variables that are independant of current branch
+# environment variables that are independent of current branch
 env:
   AWS_REGION: us-east-1
   CLOUDFORMATION_ROLE_ARN: ${{ secrets.AWS_CLOUDFORMATION_ROLE_ARN }}
@@ -33,7 +33,7 @@ jobs:
       - name: Set environment variables based on git branch
         id: setenv
         run: |
-          if [[ "${{github.ref}}" == "ref/heads/main" ]]; then
+          if [[ "${{github.ref}}" == "refs/heads/main" ]]; then
             echo "::set-output name=environment::main"
             echo "::set-output name=network_stack_name::minecraft-main-network"
             echo "::set-output name=templates_stack_name::minecraft-main-ec2templates"
@@ -81,7 +81,7 @@ jobs:
         run: ./servers/destroy-resources.sh --only-orphans
 
       - name: Cleanup resources used in testing
-        if: (!endsWith(github.ref, '/main'))
+        if: ${{ github.ref != 'refs/heads/main' }}
         run: |
           ./servers/destroy-resources.sh --all
           ./templates/destroy-resources.sh
