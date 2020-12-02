@@ -7,7 +7,8 @@ echo "*** Deploy Networking Foundation ***"
 echo ""
 
 echo "Networking Deployment Parameters:"
-echo "  |- stack name = $NETWORK_STACK_NAME"
+echo "  |- environment = $ENVIRONMENT"
+echo "  |- stack name  = $NETWORK_STACK_NAME"
 echo ""
 
 echo "Validating the CloudFormation template..."

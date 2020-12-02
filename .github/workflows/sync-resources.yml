@@ -3,7 +3,10 @@
 # (e.g. new installations, resource upgrades, and testing feature branches)
 #
 name: sync-resources
-on: push
+on:
+  push:
+    branches: ["**"]
+    tags-ignore: ["v*.*"]
 
 # environment variables that are independant of current branch
 env:
@@ -32,12 +35,12 @@ jobs:
         run: |
           if [[ "${{github.ref}}" == "ref/heads/main" ]]; then
             echo "::set-output name=environment::main"
-            echo "::set-output name=network_stack_name::minecraft-network-main"
-            echo "::set-output name=templates_stack_name::minecraft-ec2templates-main"
+            echo "::set-output name=network_stack_name::minecraft-main-network"
+            echo "::set-output name=templates_stack_name::minecraft-main-ec2templates"
           else
             echo "::set-output name=environment::test"
-            echo "::set-output name=network_stack_name::minecraft-network-test"
-            echo "::set-output name=templates_stack_name::minecraft-ec2templates-test"
+            echo "::set-output name=network_stack_name::minecraft-test-network"
+            echo "::set-output name=templates_stack_name::minecraft-test-ec2templates"
           fi
 
   deploy:

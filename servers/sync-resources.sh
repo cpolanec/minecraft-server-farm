@@ -23,7 +23,7 @@ for propfile in `ls ${server_dir}`; do
 
   propfile_path=${server_dir}/${propfile}
   name=`basename $propfile .properties`
-  stack_name="minecraft-server-${ENVIRONMENT}-${name}"
+  stack_name="minecraft-${ENVIRONMENT}-server-${name}"
 
   snapshot_id=`grep gamedata.snapshot.id= $propfile_path | cut -d'=' -f2`
   
@@ -40,6 +40,7 @@ for propfile in `ls ${server_dir}`; do
   echo ""
 
   echo "Server Deployment Parameters:"
+  echo "  |- environment             = $ENVIRONMENT"
   echo "  |- stack name              = $stack_name"
   echo "  |- properties file         = $propfile"
   echo "  |- snapshot id             = $snapshot_id"

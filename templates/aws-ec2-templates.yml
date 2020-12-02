@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 
 Description: Launch templates for Minecraft EC2 servers
 
@@ -8,7 +8,6 @@ Parameters:
     Description: Environment name will be appended to resource names
   NetworkStackName:
     Type: String
-    AllowedPattern: '^minecraft-network-.*'
     Description: Name of the Minecraft VPC networking stack
   SshKeyName:
     Type: String
@@ -66,6 +65,7 @@ Resources:
                 permissions: '0755'
                 content: |
                   #!/bin/sh -e
+
                   minecraft_dir=/mnt/minecraft
                   propfile_path=${!minecraft_dir}/server.properties
                   [ ! -f ${!propfile_path} ] && echo "" > ${!propfile_path}
@@ -73,8 +73,8 @@ Resources:
                   set_property() {
                     prop=$1
                     value=$2
-                    if [ ! `grep -R ] "^[#]*\s*${!prop}=.*" ${!propfile_path}` ]; then
-                      echo "${!prop}=${!value}" >> ${!propfile_path}
+                    if [ ! `grep -R "^[#]*\s*${!prop}=.*" ${!propfile_path}` ]; then
+                      echo ${!prop}=${!value} >> ${!propfile_path}
                     else
                       sed -i'' "s/^[#]*\s*${!prop}=.*/${!prop}=${!value}/" ${!propfile_path}
                     fi
@@ -84,6 +84,7 @@ Resources:
                   set_property rcon.password ${MinecraftRconPassword}
                   set_property white-list true
                   set_property enforce-whitelist true
+                  echo eula=true > ${!minecraft_dir}/eula.txt
 
               - path: /etc/systemd/system/minecraft.service
                 content: |
@@ -97,10 +98,12 @@ Resources:
                   User=ec2-user
                   WorkingDirectory=/mnt/minecraft
                   ExecStartPre=/usr/bin/sudo /usr/bin/chown ec2-user:ec2-user /mnt/minecraft
-                  ExecStartPre=/usr/bin/wget https://papermc.io/api/v1/paper/1.16.4/279/download -O minecraft.jar
-                  ExecStartPre=/usr/bin/sh -c 'echo eula=true > eula.txt'
+                  ExecStartPre=/usr/bin/wget https://papermc.io/api/v1/paper/1.16.4/300/download -O minecraft.jar
                   ExecStartPre=/home/ec2-user/config_server_props.sh
                   ExecStart=/usr/bin/java -Xms2G -Xmx2G -jar minecraft.jar --noconsole
+                  Restart=always
+                  StartLimitIntervalSec=30
+                  StartLimitBurst=1
                   SuccessExitStatus=0 143
 
                   [Install]

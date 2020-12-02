@@ -1,13 +1,8 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 
 Description: Networking stack for Minecraft server runtime
 
 Parameters:
-  ApplicationName:
-    Type: String
-    Default: minecraft
-    AllowedValues: [minecraft]
-    Description: Application name will be used to prefix resource names (always 'minecraft')
   Environment:
     Type: String
     Description: Environment name will be appended to resource names
@@ -19,6 +14,10 @@ Parameters:
     Type: String
     Default: 10.0.0.0/24
     Description: CIDR block for public subnet
+  AvailabilityZone:
+    Type: "AWS::EC2::AvailabilityZone::Name"
+    Default: us-east-1a
+    Description: Availability zone for public subnet
 
 Outputs:
   SecurityGroupId:
@@ -44,24 +43,25 @@ Resources:
       CidrBlock: !Ref VpcCidrBlock
       Tags:
         - Key: Application
-          Value: !Ref ApplicationName
+          Value: minecraft
         - Key: Environment
           Value: !Ref Environment
         - Key: Name
-          Value: !Sub ${ApplicationName}-vpc-${Environment}
+          Value: !Sub minecraft-${Environment}-vpc
 
   MinecraftSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MinecraftVPC
       CidrBlock: !Ref Subnet1CidrBlock
+      AvailabilityZone: !Ref AvailabilityZone
       Tags:
         - Key: Application
-          Value: !Ref ApplicationName
+          Value: minecraft
         - Key: Environment
           Value: !Ref Environment
         - Key: Name
-          Value: !Sub ${ApplicationName}-subnet1-${Environment}
+          Value: !Sub minecraft-${Environment}-subnet1
 
   # ---------------------------------------------
   #
@@ -74,11 +74,11 @@ Resources:
     Properties:
       Tags:
         - Key: Application
-          Value: !Ref ApplicationName
+          Value: minecraft
         - Key: Environment
           Value: !Ref Environment
         - Key: Name
-          Value: !Sub ${ApplicationName}-igw-${Environment}
+          Value: !Sub minecraft-${Environment}-igw
 
   MinecraftInternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -92,11 +92,11 @@ Resources:
       VpcId: !Ref MinecraftVPC
       Tags:
         - Key: Application
-          Value: !Ref ApplicationName
+          Value: minecraft
         - Key: Environment
           Value: !Ref Environment
         - Key: Name
-          Value: !Sub ${ApplicationName}-routetable-${Environment}
+          Value: !Sub minecraft-${Environment}-routetable
 
   MinecraftSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -124,11 +124,11 @@ Resources:
       VpcId: !Ref MinecraftVPC
       Tags:
         - Key: Application
-          Value: !Ref ApplicationName
+          Value: minecraft
         - Key: Environment
           Value: !Ref Environment
         - Key: Name
-          Value: !Sub ${ApplicationName}-acl-${Environment}
+          Value: !Sub minecraft-${Environment}-acl
 
   MinecraftSubnetNetworkACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
@@ -220,7 +220,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref MinecraftVPC
-      GroupName: !Sub ${ApplicationName}-sg-${Environment}
+      GroupName: !Sub minecraft-${Environment}-sg
       GroupDescription: Minecraft server firewall rules
       SecurityGroupIngress:
         - IpProtocol: 6 # TCP
@@ -245,8 +245,8 @@ Resources:
           Description: Minecraft rcon TCP port
       Tags:
         - Key: Application
-          Value: !Ref ApplicationName
+          Value: minecraft
         - Key: Environment
           Value: !Ref Environment
         - Key: Name
-          Value: !Sub ${ApplicationName}-sg-${Environment}
+          Value: !Sub minecraft-${Environment}-sg

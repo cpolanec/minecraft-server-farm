@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 
 Description: Minecraft 'template-16a' server
 
@@ -8,15 +8,14 @@ Parameters:
     Description: Environment name will be appended to resource names
   NetworkStackName:
     Type: String
-    AllowedPattern: '^minecraft-network-.*'
     Description: Name of the Minecraft VPC networking stack
   GameDataSnapshotId:
     Type: String
-    AllowedPattern: '^snap-.*'
+    AllowedPattern: "^snap-.*"
     Description: Snapshot ID to use when initializing the game server
   LaunchTemplateId:
     Type: String
-    AllowedPattern: '^lt-.*'
+    AllowedPattern: "^lt-.*"
     Description: Resource ID of the Minecraft EC2 launch template
   LaunchTemplateVersion:
     Type: Number
