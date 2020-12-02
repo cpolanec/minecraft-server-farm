@@ -98,7 +98,7 @@ Resources:
                   User=ec2-user
                   WorkingDirectory=/mnt/minecraft
                   ExecStartPre=/usr/bin/sudo /usr/bin/chown ec2-user:ec2-user /mnt/minecraft
-                  ExecStartPre=/usr/bin/wget https://papermc.io/api/v1/paper/1.16.4/279/download -O minecraft.jar
+                  ExecStartPre=/usr/bin/wget https://papermc.io/api/v1/paper/1.16.4/300/download -O minecraft.jar
                   ExecStartPre=/home/ec2-user/config_server_props.sh
                   ExecStart=/usr/bin/java -Xms2G -Xmx2G -jar minecraft.jar --noconsole
                   Restart=always
