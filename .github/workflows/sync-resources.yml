@@ -3,7 +3,10 @@
 # (e.g. new installations, resource upgrades, and testing feature branches)
 #
 name: sync-resources
-on: push
+on:
+  push:
+    branches: ["**"]
+    tags-ignore: ["v*.*"]
 
 # environment variables that are independant of current branch
 env:
