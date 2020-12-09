@@ -30,6 +30,7 @@ Follow these steps to quickly get started with a clone of this repository:
     | ENVIRONMENT              | Scope/tag resources with this name to avoid conflicts                    |
     | NETWORK_STACK_NAME       | Name for the CloudFormation stack that deploys the networking components |
     | EC2_TEMPLATES_STACK_NAME | Name for the CloudFormation stack that deploys the EC2 Launch Templates  |
+    | GAME_DATA_BACKUP_COUNT   | Number of snapshots per game server to retain                            |
     | CLOUDFORMATION_ROLE_ARN  | Service role to pass to CloudFormation                                   |
     | SSH_KEY_NAME             | Name of the SSH key created in your AWS account                          |
     | MINECRAFT_RCON_PASSWORD  | Password to provide Minecraft server for rcon protocol connection        |
@@ -46,6 +47,7 @@ Follow these steps to quickly get started with a clone of this repository:
     CLOUDFORMATION_ROLE_ARN=arn:aws:iam::############:role/some_cloudformation_service_role
     SSH_KEY_NAME=some_ec2_ssh_key_name
 
+    GAME_DATA_BACKUP_COUNT=3
     MINECRAFT_RCON_PASSWORD=some_rcon_password
     ```
 
@@ -53,11 +55,14 @@ Follow these steps to quickly get started with a clone of this repository:
 
     | Command           | Description                                                    |
     | ----------------- | -------------------------------------------------------------- |
+    | `make`            | Default action is to trigger `backups` and `servers` targets   |
     | `make servers`    | Create the Minecraft game servers and all dependencies         |
+    | `make backups`    | Create snapshots of attached volumes containing game data      |
     | `make templates`  | Create the Minecraft EC2 Launch Templates and all dependencies |
     | `make network`    | Create the Minecraft networking foundation                     |
     | `make clean`      | Clean up any generated files in the local workspace            |
-    | `make destroy`    | Delete all remote resources (useful in testing)                |
+    | `make destroy`    | Delete remote resources except network (useful in testing)     |
+    | `make destroyall` | Delete all remote resources (useful in testing)                |
     | `make .gitignore` | Make the `.gitignore` file using gitignore.io file generation  |
 
 ## Setting up a GitHub forked repository
@@ -92,12 +97,14 @@ Follow these steps to quickly get started with a GitHub fork of this repository:
           id: setenv
           run: |
               if [[ "${{github.ref}}" == "ref/heads/main" ]]; then
-                echo "ENVIRONMENT=main" >> $GITHUB_ENV
-                echo "NETWORK_STACK_NAME=minecraft-network-main" >> $GITHUB_ENV
-                echo "EC2_TEMPLATES_STACK_NAME=minecraft-ec2templates-main" >> $GITHUB_ENV
+                echo "::set-output name=environment::main"
+                echo "::set-output name=network_stack_name::minecraft-main-network"
+                echo "::set-output name=templates_stack_name::minecraft-main-ec2templates"
+                echo "::set-output name=game_data_backup_count::3"
               else
-                echo "ENVIRONMENT=test" >> $GITHUB_ENV
-                echo "NETWORK_STACK_NAME=minecraft-network-test" >> $GITHUB_ENV
-                echo "EC2_TEMPLATES_STACK_NAME=minecraft-ec2templates-test" >> $GITHUB_ENV
+                echo "::set-output name=environment::test"
+                echo "::set-output name=network_stack_name::minecraft-test-network"
+                echo "::set-output name=templates_stack_name::minecraft-test-ec2templates"
+                echo "::set-output name=game_data_backup_count::1"
               fi
     ```

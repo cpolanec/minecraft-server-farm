@@ -6,7 +6,7 @@ name: sync-resources
 on:
   push:
     branches: ["**"]
-    tags-ignore: ["v*.*"]
+    tags-ignore: ["v*"]
 
 # environment variables that are independent of current branch
 env:
@@ -28,6 +28,7 @@ jobs:
       environment: ${{ steps.setenv.outputs.environment }}
       network_stack_name: ${{ steps.setenv.outputs.network_stack_name }}
       templates_stack_name: ${{ steps.setenv.outputs.templates_stack_name }}
+      game_data_backup_count: ${{ steps.setenv.outputs.game_data_backup_count }}
 
     steps:
       - name: Set environment variables based on git branch
@@ -37,10 +38,12 @@ jobs:
             echo "::set-output name=environment::main"
             echo "::set-output name=network_stack_name::minecraft-main-network"
             echo "::set-output name=templates_stack_name::minecraft-main-ec2templates"
+            echo "::set-output name=game_data_backup_count::3"
           else
             echo "::set-output name=environment::test"
             echo "::set-output name=network_stack_name::minecraft-test-network"
             echo "::set-output name=templates_stack_name::minecraft-test-ec2templates"
+            echo "::set-output name=game_data_backup_count::1"
           fi
 
   deploy:
@@ -56,6 +59,7 @@ jobs:
       ENVIRONMENT: ${{ needs.init.outputs.environment }}
       NETWORK_STACK_NAME: ${{ needs.init.outputs.network_stack_name }}
       EC2_TEMPLATES_STACK_NAME: ${{ needs.init.outputs.templates_stack_name }}
+      GAME_DATA_BACKUP_COUNT: ${{ needs.init.outputs.game_data_backup_count }}
 
     steps:
       - name: Checkout git repository
@@ -74,6 +78,11 @@ jobs:
       - name: Deploy EC2 Launch Templates
         run: ./templates/sync-resources.sh
 
+      - name: Backup Minecraft game data from servers
+        run: |
+          ./servers/backup-game-data.sh
+          ./servers/purge-extra-backups.sh
+
       - name: Deploy Minecraft game servers
         run: ./servers/sync-resources.sh
 
@@ -85,4 +94,3 @@ jobs:
         run: |
           ./servers/destroy-resources.sh --all
           ./templates/destroy-resources.sh
-          ./network/destroy-resources.sh

@@ -21,8 +21,8 @@ endef
 #
 # configure goals
 #
-default: clean network templates servers
-.PHONY: .gitignore clean destroy network templates servers
+default: backups servers
+.PHONY: .gitignore clean destroy destroyall network templates backups servers
 
 #
 # create .gitignore file
@@ -41,12 +41,14 @@ clean:
 	$(call header)
 	$(call prompt)
 	rm -f **/*.validated.json
-destroy: clean
+destroy: | clean
 	$(call header)
 	$(call prompt)
 	./servers/destroy-resources.sh --all
 	$(call prompt)
 	./templates/destroy-resources.sh
+destroyall: | clean destroy
+	$(call header)
 	$(call prompt)
 	./network/destroy-resources.sh
 
@@ -65,6 +67,16 @@ templates: | network
 	$(call header)
 	$(call prompt)
 	./templates/sync-resources.sh
+
+#
+# create backups of game data
+#
+backups: | network
+	$(call header)
+	$(call prompt)
+	./servers/backup-game-data.sh
+	$(call prompt)
+	./servers/purge-extra-backups.sh
 
 #
 # deploy game servers
