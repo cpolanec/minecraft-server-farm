@@ -66,7 +66,7 @@ for stack in $del_stack_names; do
     | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "VolumeId").OutputValue'`
 
   echo "Stopping EC2 instance $instance_id ..."
-  aws ec2 stop-instances --instance-ids $instance_id | jq -rc .
+  aws ec2 stop-instances --force --instance-ids $instance_id | jq -rc .
   aws ec2 wait instance-stopped --instance-ids $instance_id | jq -rc .
   echo ""
 

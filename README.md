@@ -2,7 +2,7 @@
 
 Resources for running Minecraft game servers on AWS EC2 servers. This project implements a [GitOps-style approach](https://www.atlassian.com/git/tutorials/gitops) with [GitHub Actions](https://github.com/features/actions) to manage the AWS infrastructure and the Minecraft game servers.
 
-Take a look at the [Getting Started](./docs/GETTING-STARTED.md) guide if you are interested in running your own Minecraft Server Farm using these resources. 
+Take a look at the [Getting Started](./docs/GETTING-STARTED.md) guide if you are interested in running your own Minecraft Server Farm using these resources.
 
 ## How it all works
 
@@ -18,7 +18,12 @@ Each component has the following artifacts:
 
 - Shell script for deploying/synchronizing resources (e.g. `sync-resources.sh`)
 - Shell script for destroying resources (e.g. `destroy-resources.sh`)
-- CloudFormation template defining the cloud resources
+- CloudFormation template that defines the cloud resources
+
+The `servers` component also has the following artifacts:
+
+- Shell script for creating backups of the Minecraft game data on the attached EBS volume
+- Shell script for purging old game data backups (to prevent filling up the account with EBS volume snapshots)
 
 The `servers` component also has directories which correspond to any environment names supplied in the deployment/synchronization automation. A Minecraft server will be created and named after each properties file in the environment directory. See table below for examples:
 
