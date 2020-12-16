@@ -7,6 +7,7 @@ on:
   push:
     branches: ["**"]
     tags-ignore: ["v*"]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
 
 # environment variables that are independent of current branch
 env:

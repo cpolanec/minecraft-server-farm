@@ -1,5 +1,12 @@
 # Creating Your Own Server Farm
 
+Table of Contents:
+
+1. [Preparing your AWS account](#preparing-your-aws-account)
+1. [Setting up a local clone of the project](#setting-up-a-local-clone-of-the-project)
+1. [Setting up a GitHub forked repository](#setting-up-a-github-forked-repository)
+1. [Managing the components](#managing-the-components)
+
 ## Preparing your AWS account
 
 Follow these steps to complete the one-time setup of your [AWS account](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/):
@@ -108,3 +115,32 @@ Follow these steps to quickly get started with a GitHub fork of this repository:
                 echo "::set-output name=game_data_backup_count::1"
               fi
     ```
+
+## Managing the components
+
+### Changes to Networking components
+
+Networking resources should not require maintenance of any kind. If changes are desired, caution should be taken to see if those changes would require resource replacement rather than updating (see [AWS documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html) for more details). Resource replacement may result in disruption of the entire solution.
+
+### Changes to EC2 Launch Templates
+
+EC2 Launch Templates support automatic versioning so ordinary maintenance can be applied to the existing launch template resource definition(s). These changes will be automatically applied to any game servers referencing the updated Launch Template(s). Examples of ordinary maintenance are the following:
+
+- updating the AMI to latest version
+- updating Minecraft binary file to latest minor release or patch
+- updating Java runtime flags for performance optimizations
+
+Major changes to the EC2 Launch Templates should be implemented by creating a new EC2 Launch Template rather than updating an existing launch template. Game Servers can upgrade to the new EC2 Launch Template by updating the `launchtemplate.id.key` property in the game server's property file. Examples of major changes are the following:
+
+- updating Minecraft binary file to the latest major release
+- modifying the EC2 instance type
+
+### Changes to game servers
+
+Creating or deleting games servers is as simple as adding or removing new property files, respectively, to the desired environment directory.
+
+The `gamedata.snapshot.id` provides a lot of options for modifying game servers. Game progress can be saved off by creating a new EBS snapshot and using the associated snapshot ID in the following ways:
+
+- updating the `gamedata.snapshot.id` in an existing property file to recover a prior game state
+- using the snapshot ID in a new property file to start new minecraft world (also equivalent to renaming a game server)
+- using the snapshot ID in a new property file to test a new EC2 Launch Template
