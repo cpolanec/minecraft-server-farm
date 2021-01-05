@@ -84,6 +84,7 @@ Resources:
                   set_property rcon.password ${MinecraftRconPassword}
                   set_property white-list true
                   set_property enforce-whitelist true
+                  set_property enable-command-block true
                   echo eula=true > ${!minecraft_dir}/eula.txt
 
               - path: /etc/systemd/system/minecraft.service
