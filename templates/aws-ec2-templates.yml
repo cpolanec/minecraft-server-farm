@@ -32,7 +32,7 @@ Resources:
     Properties:
       LaunchTemplateName: !Sub minecraft-${Environment}-16a-template
       LaunchTemplateData:
-        ImageId: ami-007a607c4abd192db
+        ImageId: ami-0c582118883b46f4f
         InstanceType: m6g.medium
         KeyName: !Ref SshKeyName
         SecurityGroupIds:
@@ -98,7 +98,7 @@ Resources:
                   User=ec2-user
                   WorkingDirectory=/mnt/minecraft
                   ExecStartPre=/usr/bin/sudo /usr/bin/chown ec2-user:ec2-user /mnt/minecraft
-                  ExecStartPre=/usr/bin/wget https://papermc.io/api/v1/paper/1.16.4/300/download -O minecraft.jar
+                  ExecStartPre=/usr/bin/wget https://papermc.io/api/v2/projects/paper/versions/1.16.4/builds/389/downloads/paper-1.16.4-389.jar -O minecraft.jar
                   ExecStartPre=/home/ec2-user/config_server_props.sh
                   ExecStart=/usr/bin/java -Xms2G -Xmx2G -jar minecraft.jar --noconsole
                   Restart=always
