@@ -1,0 +1,54 @@
+{
+  "name": "minecraft-server-farm",
+  "version": "2.0.0",
+  "description": "Resources for running a Minecraft server farm in AWS",
+  "license": "MIT",
+  "keywords": [
+    "minecraft",
+    "aws"
+  ],
+  "homepage": "https://github.com/cpolanec/minecraft-server-farm#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cpolanec/minecraft-server-farm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cpolanec/minecraft-server-farm/issues"
+  },
+  "scripts": {
+    "clean": "rm -rf cdk.out coverage **/*.d.ts bin/*.js lib/*.js test/*.js",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "lint": "eslint .",
+    "test": "jest --coverage",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy --all --require-approval never",
+    "destroy": "cdk destroy --all --force"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-ec2": "1.97.0",
+    "@aws-cdk/aws-iam": "1.97.0",
+    "@aws-cdk/core": "1.97.0",
+    "@aws-cdk/custom-resources": "^1.97.0",
+    "dotenv": "^8.2.0",
+    "env-var": "^7.0.0",
+    "source-map-support": "^0.5.16"
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "1.97.0",
+    "@tsconfig/node14": "^1.0.0",
+    "@types/jest": "^26.0.10",
+    "@types/node": "10.17.27",
+    "@typescript-eslint/eslint-plugin": "^4.21.0",
+    "@typescript-eslint/parser": "^4.21.0",
+    "aws-cdk": "1.97.0",
+    "eslint": "^7.23.0",
+    "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-plugin-import": "^2.22.1",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.2.0",
+    "ts-mockito": "^2.6.1",
+    "ts-node": "^9.0.0",
+    "typescript": "~3.9.7"
+  }
+}

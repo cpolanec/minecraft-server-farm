@@ -1,9 +1,0 @@
-
-# Additions to generated content from gitignore.io
-
-### AWS-related files ###
-*.pem
-*.validated.json
-*.iam.json
-
-# End of additions to generated content from gitignore.io
