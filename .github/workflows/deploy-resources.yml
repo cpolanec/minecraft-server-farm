@@ -79,6 +79,7 @@ jobs:
       
       - name: Validate project changes
         run: |
+          npm run build
           npm run lint
           npm run test
       

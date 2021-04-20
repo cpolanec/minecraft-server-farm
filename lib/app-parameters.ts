@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as envvar from 'env-var';
+import * as fs from 'fs';
 
 class AppParameters {
   //-------------------------------------------------------
@@ -88,11 +89,12 @@ class AppParameters {
 
   public static getInstance(): AppParameters {
     if (!AppParameters.instance) {
-      const result = dotenv.config();
-      if (result.error) {
-        throw result.error;
+      if (fs.existsSync('.env')) {
+        const result = dotenv.config();
+        if (result.error) {
+          throw result.error;
+        }
       }
-
       AppParameters.instance = new AppParameters();
     }
 
