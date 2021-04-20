@@ -1,4 +1,4 @@
-# Minecraft Server Farm ![deploy-resources](https://github.com/cpolanec/minecraft-server-farm/workflows/deploy-resources/badge.svg)
+# Minecraft Server Farm [![deploy](https://github.com/cpolanec/minecraft-server-farm/actions/workflows/deploy-resources.yml/badge.svg)](https://github.com/cpolanec/minecraft-server-farm/actions/workflows/deploy-resources.yml)
 
 Resources for running Minecraft game servers on AWS EC2 virtual machines.
 
