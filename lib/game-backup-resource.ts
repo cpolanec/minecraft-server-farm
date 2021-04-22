@@ -5,10 +5,14 @@ import * as cr from '@aws-cdk/custom-resources';
 import AppParameters from './app-parameters';
 import GameServerDefinition from './game-server-def';
 
-class GameDataBackup extends cdk.Construct {
-  //-------------------------------------------------------
+/**
+ * Encapsulation of the AWS Resources needed to run a CloudFormation Custom
+ * Resource that creates snapshots of the Game Server data.
+ */
+export default class GameDataBackup extends cdk.Construct {
+  //---------------------------------------------------------------------------
   // CONSTRUCTORS & INITIALIZATION
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   constructor(scope: cdk.Construct, definition: GameServerDefinition, volume: ec2.Volume) {
     super(scope, 'GameBackup');
@@ -53,8 +57,7 @@ class GameDataBackup extends cdk.Construct {
       policy,
       role: lambdaRole,
       onUpdate: sdkCall,
+      onDelete: sdkCall,
     });
   }
 }
-
-export default GameDataBackup;
