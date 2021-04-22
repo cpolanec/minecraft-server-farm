@@ -3,22 +3,15 @@ import {
 } from '@aws-cdk/assert';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as cdk from '@aws-cdk/core';
-import * as mockito from 'ts-mockito';
+import AppParameters from '../lib/app-parameters';
 import NetworkStack from '../lib/network-stack';
 import StackSpecification from '../lib/stack-specification';
 
 let stack: NetworkStack;
 
 beforeAll(() => {
+  AppParameters.init('test/.env.testing');
   const app = new cdk.App();
-
-  const mocked: StackSpecification = mockito.mock(StackSpecification);
-  mockito.when(mocked.getStackId()).thenReturn('mcnetwork-test');
-  mockito.when(mocked.getStackProps()).thenReturn({
-    stackName: 'mcservers-test-network',
-    synthesizer: new cdk.DefaultStackSynthesizer(),
-  });
-
   const spec = new StackSpecification('network');
   stack = new NetworkStack(app, spec);
 });

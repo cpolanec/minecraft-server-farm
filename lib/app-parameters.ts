@@ -2,16 +2,26 @@ import * as dotenv from 'dotenv';
 import * as envvar from 'env-var';
 import * as fs from 'fs';
 
-class AppParameters {
-  //-------------------------------------------------------
+/**
+ * Singleton class that helps discover environment specific variables from the
+ * following locations:
+ *  1. '.env' file in the project root directory
+ *  2. Environment variables in the local execution environment
+ *
+ * These locations can help provide flexibility for running the code on a
+ * development machine or on a CI platform.
+ *
+ */
+export default class AppParameters {
+  //---------------------------------------------------------------------------
   // CLASS ATTRIBUTES
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   private static instance: AppParameters;
 
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
   // OBJECT ATTRIBUTES
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   private readonly qualifier: string;
 
@@ -35,9 +45,9 @@ class AppParameters {
 
   private readonly serverDefinitionSource: string;
 
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
   // GETTERS & SETTERS
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   public getQualifier(): string {
     return this.qualifier;
@@ -83,22 +93,32 @@ class AppParameters {
     return this.serverDefinitionSource;
   }
 
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
   // CONSTRUCTORS & INITIALIZATION
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
+  /**
+   * Returns the singleton instance and creates it if not defined already.
+   *
+   * @returns Singleton instance of this class
+   */
   public static getInstance(): AppParameters {
+    AppParameters.init('.env');
+    return AppParameters.instance;
+  }
+
+  /**
+   * Initialize the singleton instance if not already defined.
+   *
+   * @param envfile Path of file with environment variables
+   */
+  public static init(envfile?: string): void {
     if (!AppParameters.instance) {
-      if (fs.existsSync('.env')) {
-        const result = dotenv.config();
-        if (result.error) {
-          throw result.error;
-        }
+      if (envfile && fs.existsSync(envfile)) {
+        dotenv.config({ path: envfile });
       }
       AppParameters.instance = new AppParameters();
     }
-
-    return AppParameters.instance;
   }
 
   private constructor() {
@@ -158,5 +178,3 @@ class AppParameters {
       .asString();
   }
 }
-
-export default AppParameters;

@@ -1,18 +1,24 @@
 import * as cdk from '@aws-cdk/core';
 import AppParameters from './app-parameters';
 
-class StackSpecification {
-  //-------------------------------------------------------
+/**
+ * Class that consolidates the generation of stack properties from various
+ * sources (e.g. environment variables, provided stack name). This
+ * consolidation allows for consistency across the application's various
+ * stacks.
+ */
+export default class StackSpecification {
+  //---------------------------------------------------------------------------
   // ATTRIBUTES
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   private stackId: string;
 
   private stackProps: cdk.StackProps;
 
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
   // GETTERS & SETTERS
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   public getStackId(): string {
     return this.stackId;
@@ -22,10 +28,14 @@ class StackSpecification {
     return this.stackProps;
   }
 
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
   // CONSTRUCTORS & INITIALIZATION
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
+  /**
+   * @constructor
+   * @param component Unique identifier to apply in the stack properties
+   */
   constructor(component: string) {
     const params = AppParameters.getInstance();
 
@@ -53,5 +63,3 @@ class StackSpecification {
     };
   }
 }
-
-export default StackSpecification;
