@@ -29,5 +29,6 @@ beforeAll(() => {
 });
 
 test('validate stack has nested stacks', () => {
+  expect(serversStack).to(countResources('Custom::GameBackups', 2));
   expect(serversStack).to(countResources('AWS::CloudFormation::Stack', 3));
 });

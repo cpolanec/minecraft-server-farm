@@ -6,7 +6,14 @@ import StackSpecification from './stack-specification';
 import GameServerDefinition, { GameServerDefinitionFile } from './game-server-def';
 import GameServerStack from './game-server-stack';
 import NetworkStack from './network-stack';
+import GameBackups from './game-backups';
 
+/**
+ * Definition of a CloudFormation stack that coordinates the deployment of the
+ * nested stacks contained the game server resources. This CloudFormation stack
+ * also contains the Custom Resources used to create backups/snapshots of the
+ * Minecraft game data saved on the attached EBS volumes.
+ */
 export default class ServerFarmStack extends cdk.Stack {
   //---------------------------------------------------------------------------
   // OBJECT ATTRIBUTES
@@ -52,11 +59,22 @@ export default class ServerFarmStack extends cdk.Stack {
     }
 
     //
+    // backup the Game Servers on Update and Delete stack events
+    //
+    const backups = new GameBackups(this, network.vpc.vpcId);
+
+    //
     // create the nested stacks associated with the Game Servers
     //
     this.gameServerStacks = [];
     definitions.forEach((definition) => {
-      this.gameServerStacks.push(new GameServerStack(this, definition, network));
+      const stack = new GameServerStack(this, definition, network);
+      this.gameServerStacks.push(stack);
+
+      // proper order of backup tasks is defined by resource dependencies
+      // (see GameBackups class for more information)
+      stack.node.addDependency(backups.onUpdates); // backup before stack 'Update'
+      backups.onDeletes.node.addDependency(stack); // backup before stack 'Delete'
     });
   }
 }

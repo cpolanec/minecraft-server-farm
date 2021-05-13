@@ -2,10 +2,15 @@ import * as cdk from '@aws-cdk/core';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import StackSpecification from './stack-specification';
 
+/**
+ * Definition of a CloudFormation stack that represents the AWS networking
+ * resources needed to run a fleet of EC2 instances for running Minecraft
+ * game servers.
+ */
 class NetworkStack extends cdk.Stack {
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
   // CLASS ATTRIBUTES
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   vpc: ec2.Vpc;
 
@@ -15,9 +20,9 @@ class NetworkStack extends cdk.Stack {
 
   securityGroup: ec2.SecurityGroup;
 
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
   // CONSTRUCTORS & INITIALIZATION
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   constructor(scope: cdk.Construct, spec: StackSpecification) {
     super(scope, spec.getStackId(), spec.getStackProps());

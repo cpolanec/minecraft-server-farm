@@ -4,13 +4,17 @@ import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
 import NetworkStack from './network-stack';
 import AppParameters from './app-parameters';
-import GameDataBackup from './game-backup-resource';
 import GameServerDefinition from './game-server-def';
 
+/**
+ * Definition of a nested CloudFormation stack that contains the AWS resources
+ * needed to run a single Minecraft Game Server (e.g. EIP, EC2 instance, EBS
+ * volume, etc).
+ */
 class GameServerStack extends cdk.NestedStack {
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
   // CONSTRUCTORS & INITIALIZATION
-  //-------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   constructor(
     scope: cdk.Construct,
@@ -137,7 +141,6 @@ class GameServerStack extends cdk.NestedStack {
       volumeId: volume.volumeId,
       device: '/dev/sdm',
     });
-    new GameDataBackup(this, definition, volume);
   }
 }
 
