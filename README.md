@@ -1,12 +1,14 @@
-# Minecraft Server Farm ![sync-resources](https://github.com/cpolanec/minecraft-server-farm/workflows/sync-resources/badge.svg)
+# Minecraft Server Farm [![deploy](https://github.com/cpolanec/minecraft-server-farm/actions/workflows/deploy-resources.yml/badge.svg)](https://github.com/cpolanec/minecraft-server-farm/actions/workflows/deploy-resources.yml)
 
-Resources for running Minecraft game servers on AWS EC2 virtual machines. 
+Resources for running Minecraft game servers on AWS EC2 virtual machines.
 
 ## Overview
 
-This project implements a [GitOps-style approach](https://www.atlassian.com/git/tutorials/gitops) with [GitHub Actions](https://github.com/features/actions) to manage the AWS infrastructure and the Minecraft game servers.
+This project uses the [AWS Cloud Development Kit (CDK)](https://aws.amazon.com/cdk/) to define and provision infrastructure that can be used to run Minecraft game servers. The following diagram demonstrates how the CDK concepts are mapped to the AWS resources that run the Minecraft game servers:
 
-Take a look at the [Getting Started](./docs/GETTING-STARTED.md) guide if you are interested in running your own Minecraft Server Farm using this project.
+![overview](./docs/overview.png)
+
+Take a look at the [Getting Started](./docs/getting-started.md) guide if you are interested in running your own Minecraft Server Farm using this project.
 
 ## More information
 

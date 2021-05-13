@@ -1,0 +1,16 @@
+{
+    "definitions": [
+        {
+            "name": "utest1",
+            "initSnapshot": "snap-0123456789"
+        },
+        {
+            "name": "utest2",
+            "initSnapshot": "snap-9876543210"
+        },
+        {
+            "name": "utest3",
+            "initSnapshot": "snap-9999999999"
+        }
+    ]
+}

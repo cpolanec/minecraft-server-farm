@@ -1,0 +1,74 @@
+#
+# The CDK can be bootstrapped with this template by executing the following command:
+#   
+#   npx cdk bootstrap --toolkit-stack-name mcservers-cdk-toolkit --template docs/cdk-mcservers.yml
+#
+# You will need to modify the bucket name in the 'Outputs' section in order to work in your AWS environment.
+#
+
+Description: This stack includes resources needed to deploy AWS CDK apps into this environment
+
+#
+# Many of these CloudFormation template parameters will not be used for the following reasons:
+#   1. The values are hardcoded in the template below (easier than passing them through the bootstrap command)
+#   2. The underlying resources are not needed for this project
+#
+# DO NOT remove the unused parameters though since they are still required by the bootstrapping process.
+#
+Parameters:
+  TrustedAccounts:
+    Description: List of AWS accounts that are trusted to publish assets and deploy stacks to this environment
+    Default: ""
+    Type: CommaDelimitedList
+  CloudFormationExecutionPolicies:
+    Description: List of the ManagedPolicy ARN(s) to attach to the CloudFormation deployment role
+    Default: ""
+    Type: CommaDelimitedList
+  FileAssetsBucketName:
+    Description: The name of the S3 bucket used for file assets
+    Default: ""
+    Type: String
+  FileAssetsBucketKmsKeyId:
+    Description: Empty to create a new key (default), 'AWS_MANAGED_KEY' to use a managed S3 key, or the ID/ARN of an existing key.
+    Default: ""
+    Type: String
+  ContainerAssetsRepositoryName:
+    Description: A user-provided custom name to use for the container assets ECR repository
+    Default: ""
+    Type: String
+  Qualifier:
+    Description: An identifier to distinguish multiple bootstrap stacks in the same environment
+    Default: mcservers
+    Type: String
+    AllowedPattern: "[A-Za-z0-9_-]{1,10}"
+    ConstraintDescription: Qualifier must be an alphanumeric identifier of at most 10 characters
+  PublicAccessBlockConfiguration:
+    Description: Whether or not to enable S3 Staging Bucket Public Access Block Configuration
+    Default: "true"
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+
+Resources:
+  CdkBootstrapVersion:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /cdk-bootstrap/mcservers/version
+      Value: "5"
+
+#
+# Change the bucket name below to your desired S3 bucket name
+#
+Outputs:
+  BucketName:
+    Description: The name of the S3 bucket owned by the CDK toolkit stack
+    Value: my-deployment-bucket
+  BucketDomainName:
+    Description: The domain name of the S3 bucket owned by the CDK toolkit stack
+    Value: !Sub my-deployment-bucket.s3.${AWS::Region}.amazonaws.com
+  BootstrapVersion:
+    Description: The version of the bootstrap resources that are currently mastered in this stack
+    Value: !GetAtt CdkBootstrapVersion.Value
+
