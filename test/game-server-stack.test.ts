@@ -2,10 +2,18 @@ import {
   countResources, expect, haveResource,
 } from '@aws-cdk/assert';
 import * as cdk from '@aws-cdk/core';
+import { mocked } from 'ts-jest/utils';
 import AppParameters from '../lib/app-parameters';
 import NetworkStack from '../lib/network-stack';
+import PaperMCApiClient from '../lib/papermc-api-client';
 import ServerFarmStack from '../lib/server-farm-stack';
 import StackSpecification from '../lib/stack-specification';
+
+// Prepare a mocked version of 'got' to catch the calls to the PaperMC REST API.
+jest.mock('../lib/papermc-api-client');
+const mockedPaperMC = mocked(PaperMCApiClient);
+mockedPaperMC.gatherLatestBuildNumber = jest.fn().mockResolvedValue(0);
+mockedPaperMC.createDownloadUrl = jest.fn().mockResolvedValue('');
 
 let serversStack: ServerFarmStack;
 

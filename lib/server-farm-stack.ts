@@ -43,11 +43,21 @@ export default class ServerFarmStack extends cdk.Stack {
     //
     // gather the Game Server definitions
     //
+    const defaultValues: GameServerDefinition = {
+      name: '',
+      initSnapshot: '',
+      papermc: {
+        version: '1.17.1',
+      },
+    };
     const definitions: GameServerDefinition[] = [];
     const stat = fs.lstatSync(sourcePath);
     if (stat.isFile()) {
       const jsonString = fs.readFileSync(sourcePath).toString();
-      const serverDefFile = JSON.parse(jsonString) as GameServerDefinitionFile;
+      const serverDefFile = {
+        ...defaultValues,
+        ...JSON.parse(jsonString),
+      } as GameServerDefinitionFile;
       definitions.push(...serverDefFile.definitions);
     } else if (stat.isDirectory()) {
       const files = fs.readdirSync(sourcePath);
@@ -68,13 +78,18 @@ export default class ServerFarmStack extends cdk.Stack {
     //
     this.gameServerStacks = [];
     definitions.forEach((definition) => {
-      const stack = new GameServerStack(this, definition, network);
-      this.gameServerStacks.push(stack);
+      // const stack = new GameServerStack(this, definition, network);
+      GameServerStack.create(this, definition, network).then(
+        (stack) => {
+          this.gameServerStacks.push(stack);
 
-      // proper order of backup tasks is defined by resource dependencies
-      // (see GameBackups class for more information)
-      stack.node.addDependency(backups.onUpdates); // backup before stack 'Update'
-      backups.onDeletes.node.addDependency(stack); // backup before stack 'Delete'
+          // proper order of backup tasks is defined by resource dependencies
+          // (see GameBackups class for more information)
+          stack.node.addDependency(backups.onUpdates); // backup before stack 'Update'
+          backups.onDeletes.node.addDependency(stack); // backup before stack 'Delete'
+        },
+        () => { },
+      );
     });
   }
 }
