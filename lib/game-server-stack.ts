@@ -5,6 +5,7 @@ import * as iam from '@aws-cdk/aws-iam';
 import NetworkStack from './network-stack';
 import AppParameters from './app-parameters';
 import GameServerDefinition from './game-server-def';
+import PaperMCApiClient from './papermc-api-client';
 
 /**
  * Definition of a nested CloudFormation stack that contains the AWS resources
@@ -16,10 +17,24 @@ class GameServerStack extends cdk.NestedStack {
   // CONSTRUCTORS & INITIALIZATION
   //---------------------------------------------------------------------------
 
-  constructor(
+  public static create = async (
     scope: cdk.Construct,
     definition: GameServerDefinition,
     network: NetworkStack,
+  ): Promise<GameServerStack> => {
+    const papermcInfo = definition.papermc || {};
+    const version = papermcInfo.version || '1.17.1';
+    const build = papermcInfo.build || await PaperMCApiClient.gatherLatestBuildNumber(version);
+    const downloadUrl = await PaperMCApiClient.createDownloadUrl(version, build);
+
+    return new GameServerStack(scope, definition, network, downloadUrl);
+  };
+
+  private constructor(
+    scope: cdk.Construct,
+    definition: GameServerDefinition,
+    network: NetworkStack,
+    downloadUrl: string,
   ) {
     super(scope, definition.name);
 
@@ -32,8 +47,10 @@ class GameServerStack extends cdk.NestedStack {
 
     const userData = ec2.UserData.forLinux();
     userData.addCommands(
+      'rpm --import https://yum.corretto.aws/corretto.key',
+      'curl -L -o /etc/yum.repos.d/corretto.repo https://yum.corretto.aws/corretto.repo',
       'yum upgrade --assumeyes',
-      'yum install --assumeyes java-11-amazon-corretto-headless',
+      'yum install --assumeyes java-16-amazon-corretto-devel',
     );
     userData.addCommands(
       'mkdir /mnt/minecraft',
@@ -87,6 +104,7 @@ class GameServerStack extends cdk.NestedStack {
       'chmod +x /mnt/minecraft/config-minecraft-props.sh',
       'chown ec2-user:ec2-user /mnt/minecraft/config-minecraft-props.sh',
     );
+
     userData.addCommands(
       'cat << EOF > /etc/systemd/system/minecraft.service',
       '[Unit]',
@@ -99,7 +117,7 @@ class GameServerStack extends cdk.NestedStack {
       'User=ec2-user',
       'WorkingDirectory=/mnt/minecraft',
       'ExecStartPre=/usr/bin/sudo /usr/bin/chown ec2-user:ec2-user /mnt/minecraft',
-      'ExecStartPre=/usr/bin/wget https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/585/downloads/paper-1.16.5-585.jar -O minecraft.jar',
+      `ExecStartPre=/usr/bin/wget ${downloadUrl} -O minecraft.jar`,
       'ExecStartPre=/mnt/minecraft/config-minecraft-props.sh',
       'ExecStart=/usr/bin/java -Xmx2G -Xmx2G -jar minecraft.jar --noconsole',
       'Restart=always',

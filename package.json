@@ -36,6 +36,7 @@
     "aws-sdk": "^2.890.0",
     "dotenv": "^8.2.0",
     "env-var": "^7.0.0",
+    "got": "^11.8.2",
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {

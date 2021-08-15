@@ -6,6 +6,10 @@
 export default interface GameServerDefinition {
   name: string;
   initSnapshot: string;
+  papermc?: {
+    version?: string;
+    build?: number;
+  };
 }
 
 /**
