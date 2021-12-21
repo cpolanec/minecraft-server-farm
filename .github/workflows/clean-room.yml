@@ -10,7 +10,7 @@ on:
     paths-ignore: ["**.md", "docs/**", "LICENSE"]
 
 # environment variables that are independent of current branch
-env:
+# env:
 
 jobs:
   # validate changes
