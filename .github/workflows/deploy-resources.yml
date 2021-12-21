@@ -4,10 +4,7 @@
 #
 name: deploy
 on:
-  push:
-    branches: ["**"]
-    tags-ignore: ["v*"]
-    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+  workflow_dispatch
 
 # environment variables that are independent of current branch
 env:

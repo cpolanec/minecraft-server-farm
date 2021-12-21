@@ -1,0 +1,49 @@
+#
+# apply changes to Minecraft server farm resources
+# (e.g. new installations, resource upgrades, and testing feature branches)
+#
+name: deploy
+on:
+  push:
+    branches: ["**"]
+    tags-ignore: ["v*"]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+
+# environment variables that are independent of current branch
+env:
+
+jobs:
+  # validate changes
+  # apply label
+  # deploy aws resources
+  # tear down (only for test)
+
+  validate:
+    name: validate changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout git repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js runtime
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint
+      - run: npm run test
+        
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          flags: unittest
