@@ -1,6 +1,11 @@
-# Minecraft Server Farm [![deploy](https://github.com/cpolanec/minecraft-server-farm/actions/workflows/deploy-resources.yml/badge.svg)](https://github.com/cpolanec/minecraft-server-farm/actions/workflows/deploy-resources.yml)
+# Minecraft Server Farm
 
 Resources for running Minecraft game servers on AWS EC2 virtual machines.
+
+[![deploy](https://github.com/cpolanec/minecraft-server-farm/actions/workflows/deploy-resources.yml/badge.svg)](https://github.com/cpolanec/minecraft-server-farm/actions/workflows/deploy-resources.yml)
+[![codecov](https://codecov.io/gh/cpolanec/minecraft-server-farm/branch/main/graph/badge.svg?token=MNI4EDVR1N)](https://codecov.io/gh/cpolanec/minecraft-server-farm)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](code_of_conduct.md)
 
 ## Overview
 

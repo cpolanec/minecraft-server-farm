@@ -1,6 +1,6 @@
 {
   "name": "minecraft-server-farm",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Resources for running a Minecraft server farm in AWS",
   "license": "MIT",
   "keywords": [

@@ -89,6 +89,11 @@ jobs:
           npm run build
           npm run lint
           npm run test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          flags: unittest
       
       - name: Deploy CDK application stacks
         run: npm run deploy
