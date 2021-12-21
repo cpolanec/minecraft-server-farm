@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import * as cdk from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';
 import NetworkStack from '../lib/network-stack';
 import ServerFarmStack from '../lib/server-farm-stack';
 import StackSpecification from '../lib/stack-specification';

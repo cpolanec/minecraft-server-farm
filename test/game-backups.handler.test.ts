@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import * as lambda from 'aws-lambda';
-import * as aws from 'aws-sdk';
+import { EC2 } from 'aws-sdk';
 import * as func from '../lib/game-backups.handler';
 
 // Mock the console logger to avoid cluttering the Jest output.
@@ -39,19 +39,19 @@ jest.mock('aws-sdk');
 const mockDescribeInstances = jest.fn().mockReturnValue({
   promise: jest.fn().mockResolvedValue({}),
 });
-aws.EC2.prototype.describeInstances = mockDescribeInstances;
+EC2.prototype.describeInstances = mockDescribeInstances;
 const mockStopInstances = jest.fn().mockReturnValue({
   promise: jest.fn(),
 });
-aws.EC2.prototype.stopInstances = mockStopInstances;
+EC2.prototype.stopInstances = mockStopInstances;
 const mockWaitFor = jest.fn().mockReturnValue({
   promise: jest.fn(),
 });
-aws.EC2.prototype.waitFor = mockWaitFor;
+EC2.prototype.waitFor = mockWaitFor;
 const mockCreateSnapshot = jest.fn().mockReturnValue({
   promise: jest.fn().mockResolvedValue({ SnapshotId: 'snap-0123456789' }),
 });
-aws.EC2.prototype.createSnapshot = mockCreateSnapshot;
+EC2.prototype.createSnapshot = mockCreateSnapshot;
 beforeEach(() => {
   mockDescribeInstances.mockClear();
   mockStopInstances.mockClear();
@@ -136,7 +136,7 @@ test('mismatched RequestType and OnEvent', async () => {
 test('empty \'Reservations\' list cases', async () => {
   // validate response from ec2.describeInstances(..) with missing
   // 'Reservations' data can be handled successfully
-  aws.EC2.prototype.describeInstances = jest.fn().mockReturnValue({
+  EC2.prototype.describeInstances = jest.fn().mockReturnValue({
     promise: jest.fn().mockResolvedValue({}),
   });
   cfnEvent.RequestType = 'Update';
@@ -153,7 +153,7 @@ test('empty \'Reservations\' list cases', async () => {
   });
   expect(mockCreateSnapshot).not.toBeCalled();
 
-  aws.EC2.prototype.describeInstances = jest.fn().mockReturnValue({
+  EC2.prototype.describeInstances = jest.fn().mockReturnValue({
     promise: jest.fn().mockResolvedValue({
       Reservations: [],
     }),
@@ -176,7 +176,7 @@ test('empty \'Reservations\' list cases', async () => {
 test('empty \'Instances\' cases', async () => {
   // validate response from ec2.describeInstances(..) with missing
   // 'Instances' data can be handled successfully
-  aws.EC2.prototype.describeInstances = jest.fn().mockReturnValue({
+  EC2.prototype.describeInstances = jest.fn().mockReturnValue({
     promise: jest.fn().mockResolvedValue({
       Reservations: [{}],
     }),
@@ -195,7 +195,7 @@ test('empty \'Instances\' cases', async () => {
   });
   expect(mockCreateSnapshot).not.toBeCalled();
 
-  aws.EC2.prototype.describeInstances = jest.fn().mockReturnValue({
+  EC2.prototype.describeInstances = jest.fn().mockReturnValue({
     promise: jest.fn().mockResolvedValue({
       Reservations: [{
         Instances: [],
@@ -218,7 +218,7 @@ test('empty \'Instances\' cases', async () => {
 });
 
 test('validate single instances case', async () => {
-  aws.EC2.prototype.describeInstances = jest.fn().mockReturnValue({
+  EC2.prototype.describeInstances = jest.fn().mockReturnValue({
     promise: jest.fn().mockResolvedValue({
       Reservations: [{
         Instances: [{

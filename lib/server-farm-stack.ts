@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import AppParameters from './app-parameters';
 import StackSpecification from './stack-specification';
-import GameServerDefinition, { GameServerDefinitionFile } from './game-server-def';
+import GameServerDefinition, { MC_DEFAULT_VERSION, GameServerDefinitionFile } from './game-server-def';
 import GameServerStack from './game-server-stack';
 import NetworkStack from './network-stack';
 import GameBackups from './game-backups';
@@ -26,7 +27,7 @@ export default class ServerFarmStack extends cdk.Stack {
   //---------------------------------------------------------------------------
 
   constructor(
-    scope: cdk.Construct,
+    scope: Construct,
     spec: StackSpecification,
     network: NetworkStack,
   ) {
@@ -47,7 +48,7 @@ export default class ServerFarmStack extends cdk.Stack {
       name: '',
       initSnapshot: '',
       papermc: {
-        version: '1.17.1',
+        version: MC_DEFAULT_VERSION,
       },
     };
     const definitions: GameServerDefinition[] = [];
@@ -74,12 +75,31 @@ export default class ServerFarmStack extends cdk.Stack {
     const backups = new GameBackups(this, network.vpc.vpcId);
 
     //
+    // manage the Game Volumes (EBS volumes) on stack events
+    // (CFT VolumeAttachment resource does not support updates)
+    //
+    const lambdaRole = cdk.aws_iam.Role.fromRoleArn(
+      this, 'lambdaRole', AppParameters.getInstance().getLambdaRoleArn(),
+    );
+    const volumeAttacher = new cdk.aws_lambda_nodejs.NodejsFunction(this, 'VolAttachHandler', {
+      entry: 'lib/volume-attacher.handler.ts',
+      role: lambdaRole,
+      retryAttempts: 0,
+      timeout: cdk.Duration.minutes(5),
+      logRetention: cdk.aws_logs.RetentionDays.ONE_MONTH,
+      logRetentionRole: lambdaRole,
+
+      bundling: {
+        externalModules: ['aws-sdk'],
+      },
+    });
+
+    //
     // create the nested stacks associated with the Game Servers
     //
     this.gameServerStacks = [];
     definitions.forEach((definition) => {
-      // const stack = new GameServerStack(this, definition, network);
-      GameServerStack.create(this, definition, network).then(
+      GameServerStack.create(this, definition, network, volumeAttacher).then(
         (stack) => {
           this.gameServerStacks.push(stack);
 

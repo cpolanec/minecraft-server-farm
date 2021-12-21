@@ -1,22 +1,17 @@
 /* eslint-disable no-console */
 import got from 'got';
-import { mocked } from 'ts-jest/utils';
 import PaperMCApiClient from '../lib/papermc-api-client';
 
 // Mock the console logger to avoid cluttering the Jest output.
 // Comment the line below in order to receive console output for debugging.
 console.log = jest.fn();
 
-// Prepare a mocked version of 'got' to catch the calls to the PaperMC REST API.
-jest.mock('got');
-const mockedGot = mocked(got);
-
 beforeEach(() => {
-  mockedGot.mockClear();
+  jest.clearAllMocks();
 });
 
 test('receive valid build number list', async () => {
-  mockedGot.get = jest.fn().mockResolvedValue({
+  jest.spyOn(got, 'get').mockResolvedValue({
     body: JSON.stringify({
       builds: [0, 1, 2, 3, 4],
     }),
@@ -26,14 +21,14 @@ test('receive valid build number list', async () => {
 });
 
 test('PaperMC build number API error handling', async () => {
-  mockedGot.get = jest.fn().mockRejectedValue(new Error('some http error'));
+  jest.spyOn(got, 'get').mockRejectedValue(new Error('some http error'));
   await expect(
     PaperMCApiClient.gatherLatestBuildNumber('0.0'),
   ).rejects.toThrowError();
 });
 
 test('receive download information', async () => {
-  mockedGot.get = jest.fn().mockResolvedValue({
+  jest.spyOn(got, 'get').mockResolvedValue({
     body: JSON.stringify({
       downloads: {
         application: {
@@ -49,7 +44,7 @@ test('receive download information', async () => {
 });
 
 test('PaperMC download API error handling', async () => {
-  mockedGot.get = jest.fn().mockRejectedValue(new Error('some http error'));
+  jest.spyOn(got, 'get').mockRejectedValue(new Error('some http error'));
   await expect(
     PaperMCApiClient.createDownloadUrl('0.0', 0),
   ).rejects.toThrowError();

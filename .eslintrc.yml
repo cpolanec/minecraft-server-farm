@@ -2,9 +2,11 @@ plugins:
   - '@typescript-eslint'
 
 extends:
-  - 'airbnb-typescript/base'
-  - 'plugin:@typescript-eslint/recommended'
-  - 'plugin:@typescript-eslint/recommended-requiring-type-checking'
+  - airbnb-typescript/base
+  - plugin:@typescript-eslint/recommended
+  - plugin:@typescript-eslint/recommended-requiring-type-checking
+  - plugin:import/recommended
+  - plugin:import/typescript
 
 rules:
   no-new: off
@@ -16,3 +18,9 @@ ignorePatterns:
   - node_modules
   - '**/*.d.ts'
   - '**/*.js'
+
+settings:
+  'import/resolver':
+    typescript:
+      alwaysTryTypes: true
+      
