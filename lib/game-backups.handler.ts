@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-console */
-import * as aws from 'aws-sdk';
+import { EC2 } from 'aws-sdk';
 import * as lambda from 'aws-lambda';
 import * as https from 'https';
 import * as url from 'url';
@@ -36,10 +36,11 @@ class GameBackupsFunction {
       }
 
       const expectedEvent = event.ResourceProperties.OnEvent as string;
+      const vpcId = event.ResourceProperties.VpcId as string;
       if (event.RequestType === expectedEvent) {
         // backup game servers if the CloudFormation request type (e.g. Create,
         // Update, Delete) matches the expected event
-        await this.backupGameServers(event.ResourceProperties.VpcId);
+        await this.backupGameServers(vpcId);
       } else {
         // take no action if the CloudFormation request type does not match
         // the expected event
@@ -63,7 +64,7 @@ class GameBackupsFunction {
   /**
    * AWS SDK EC2 client to use across the Lambda function
    */
-  private ec2Client = new aws.EC2();
+  private ec2Client = new EC2();
 
   //---------------------------------------------------------------------------
   // OBJECT FUNCTIONALITY
@@ -77,15 +78,15 @@ class GameBackupsFunction {
    */
   private async backupGameServers(vpcId: string): Promise<void> {
     // gather EC2 instances from the VPC
-    const params: aws.EC2.DescribeInstancesRequest = {
+    const params: EC2.DescribeInstancesRequest = {
       Filters: [
         { Name: 'vpc-id', Values: [vpcId] },
       ],
     };
     const results = await this.ec2Client.describeInstances(params).promise();
     const reservations = results.Reservations ?? [];
-    const instances: aws.EC2.Instance[] = reservations.flatMap(
-      (reservation) => reservation.Instances as aws.EC2.InstanceList ?? [],
+    const instances: EC2.Instance[] = reservations.flatMap(
+      (reservation) => reservation.Instances as EC2.InstanceList ?? [],
     );
 
     // stop the EC2 instances prior to creating EBS snapshots to avoid issues
@@ -104,7 +105,7 @@ class GameBackupsFunction {
       console.log(`creating snapshot for instance ${instanceId}`);
       await this.ec2Client.waitFor('instanceStopped', {
         InstanceIds: [instanceId],
-      } as aws.EC2.DescribeInstancesRequest).promise();
+      } as EC2.DescribeInstancesRequest).promise();
       snapshotIds.push(
         await this.createSnapshot(instance),
       );
@@ -115,7 +116,7 @@ class GameBackupsFunction {
     // (to avoid resource contention on other CloudFormation events)
     await this.ec2Client.waitFor('snapshotCompleted', {
       SnapshotIds: snapshotIds,
-    } as aws.EC2.DescribeSnapshotsRequest).promise();
+    } as EC2.DescribeSnapshotsRequest).promise();
   }
 
   /**
@@ -125,7 +126,7 @@ class GameBackupsFunction {
    *
    * @returns Snapshot ID created during the operation
    */
-  private async createSnapshot(instance: aws.EC2.Instance): Promise<string> {
+  private async createSnapshot(instance: EC2.Instance): Promise<string> {
     let snapshotId = '';
 
     // gather data to provide as inputs to the snapshot creation operation
@@ -141,7 +142,7 @@ class GameBackupsFunction {
           VolumeId: volume.Ebs.VolumeId,
           Description: description,
           TagSpecifications: [snapshotTags],
-        } as aws.EC2.CreateSnapshotRequest).promise();
+        } as EC2.CreateSnapshotRequest).promise();
         snapshotId = snapshot.SnapshotId ?? '';
       }
     }));
@@ -161,7 +162,7 @@ class GameBackupsFunction {
    *
    * @returns Value associated with the provided key if found; otherwise ''
    */
-  static getTagValue(tags: aws.EC2.TagList, key: string): string {
+  static getTagValue(tags: EC2.TagList, key: string): string {
     const tag = tags.find((entry) => entry.Key === key);
     return tag && tag.Value ? tag.Value : '';
   }
@@ -173,7 +174,7 @@ class GameBackupsFunction {
    *
    * @returns TagSpecification containing the derived EBS volume snapshot tags
    */
-  static createSnapshotTags(instanceTags: aws.EC2.TagList): aws.EC2.TagSpecification {
+  static createSnapshotTags(instanceTags: EC2.TagList): EC2.TagSpecification {
     const application = GameBackupsFunction.getTagValue(instanceTags, 'Application');
     const environment = GameBackupsFunction.getTagValue(instanceTags, 'Environment');
 
@@ -206,7 +207,7 @@ class GameBackupsFunction {
    *
    * @returns String containing the EBS volume snapshot 'description'
    */
-  static createDescription(snapshotTags: aws.EC2.TagList): string {
+  static createDescription(snapshotTags: EC2.TagList): string {
     const serverName = GameBackupsFunction.getTagValue(snapshotTags, 'Server');
     const dateString = GameBackupsFunction.getTagValue(snapshotTags, 'Timestamp');
     return `Snapshot of '${serverName}' game server on ${dateString}`;

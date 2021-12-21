@@ -12,6 +12,8 @@ export default interface GameServerDefinition {
   };
 }
 
+export const MC_DEFAULT_VERSION = '1.18.1';
+
 /**
  * Structure of a set of Game Server Definition entries (e.g. entries within
  * a single file).

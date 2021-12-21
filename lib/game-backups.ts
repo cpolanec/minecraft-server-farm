@@ -1,7 +1,5 @@
-import * as cdk from '@aws-cdk/core';
-import * as iam from '@aws-cdk/aws-iam';
-import * as lambda from '@aws-cdk/aws-lambda-nodejs';
-import * as logs from '@aws-cdk/aws-logs';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import AppParameters from './app-parameters';
 
 /**
@@ -18,7 +16,7 @@ import AppParameters from './app-parameters';
  * to be dependent on the GameServerStack resources (forcing it to be invoked
  * prior to the deletion of the GameServerStack resources).)
  */
-export default class GameBackups extends cdk.Construct {
+export default class GameBackups extends Construct {
   //---------------------------------------------------------------------------
   // OBJECT ATTRIBUTES
   //---------------------------------------------------------------------------
@@ -30,20 +28,20 @@ export default class GameBackups extends cdk.Construct {
   //---------------------------------------------------------------------------
   // CONSTRUCTORS & INITIALIZATION
   //---------------------------------------------------------------------------
-  constructor(scope: cdk.Construct, vpcId: string) {
+  constructor(scope: Construct, vpcId: string) {
     super(scope, 'GameBackups');
 
-    const lambdaRole = iam.Role.fromRoleArn(
+    const lambdaRole = cdk.aws_iam.Role.fromRoleArn(
       this, 'lambdaRole', AppParameters.getInstance().getLambdaRoleArn(),
     );
 
     // 'handler' directs this resource to the
     // 'game-backups.handler.ts' file
-    const handler = new lambda.NodejsFunction(this, 'handler', {
+    const handler = new cdk.aws_lambda_nodejs.NodejsFunction(this, 'handler', {
       role: lambdaRole,
       retryAttempts: 0,
       timeout: cdk.Duration.minutes(5),
-      logRetention: logs.RetentionDays.ONE_MONTH,
+      logRetention: cdk.aws_logs.RetentionDays.ONE_MONTH,
       logRetentionRole: lambdaRole,
       bundling: {
         externalModules: ['aws-sdk'],

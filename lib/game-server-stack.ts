@@ -1,10 +1,9 @@
 /* eslint-disable no-template-curly-in-string */
-import * as cdk from '@aws-cdk/core';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as iam from '@aws-cdk/aws-iam';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import NetworkStack from './network-stack';
 import AppParameters from './app-parameters';
-import GameServerDefinition from './game-server-def';
+import GameServerDefinition, { MC_DEFAULT_VERSION } from './game-server-def';
 import PaperMCApiClient from './papermc-api-client';
 
 /**
@@ -18,39 +17,41 @@ class GameServerStack extends cdk.NestedStack {
   //---------------------------------------------------------------------------
 
   public static create = async (
-    scope: cdk.Construct,
+    scope: Construct,
     definition: GameServerDefinition,
     network: NetworkStack,
+    volumeAttacher: cdk.aws_lambda_nodejs.NodejsFunction,
   ): Promise<GameServerStack> => {
     const papermcInfo = definition.papermc || {};
-    const version = papermcInfo.version || '1.17.1';
+    const version = papermcInfo.version || MC_DEFAULT_VERSION;
     const build = papermcInfo.build || await PaperMCApiClient.gatherLatestBuildNumber(version);
     const downloadUrl = await PaperMCApiClient.createDownloadUrl(version, build);
 
-    return new GameServerStack(scope, definition, network, downloadUrl);
+    return new GameServerStack(scope, definition, network, volumeAttacher, downloadUrl);
   };
 
   private constructor(
-    scope: cdk.Construct,
+    scope: Construct,
     definition: GameServerDefinition,
     network: NetworkStack,
+    volumeAttacher: cdk.aws_lambda_nodejs.NodejsFunction,
     downloadUrl: string,
   ) {
     super(scope, definition.name);
 
-    const latestImage: ec2.IMachineImage = ec2.MachineImage.latestAmazonLinux({
-      generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
-      virtualization: ec2.AmazonLinuxVirt.HVM,
-      cpuType: ec2.AmazonLinuxCpuType.ARM_64,
-      storage: ec2.AmazonLinuxStorage.GENERAL_PURPOSE,
+    const latestImage: cdk.aws_ec2.IMachineImage = cdk.aws_ec2.MachineImage.latestAmazonLinux({
+      generation: cdk.aws_ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
+      virtualization: cdk.aws_ec2.AmazonLinuxVirt.HVM,
+      cpuType: cdk.aws_ec2.AmazonLinuxCpuType.ARM_64,
+      storage: cdk.aws_ec2.AmazonLinuxStorage.GENERAL_PURPOSE,
     });
 
-    const userData = ec2.UserData.forLinux();
+    const userData = cdk.aws_ec2.UserData.forLinux();
     userData.addCommands(
       'rpm --import https://yum.corretto.aws/corretto.key',
       'curl -L -o /etc/yum.repos.d/corretto.repo https://yum.corretto.aws/corretto.repo',
       'yum upgrade --assumeyes',
-      'yum install --assumeyes java-16-amazon-corretto-devel',
+      'yum install --assumeyes java-17-amazon-corretto-devel',
     );
     userData.addCommands(
       'mkdir /mnt/minecraft',
@@ -131,33 +132,37 @@ class GameServerStack extends cdk.NestedStack {
       'systemctl start minecraft.service',
     );
 
-    const instance = new ec2.Instance(this, 'instance', {
+    const instance = new cdk.aws_ec2.Instance(this, 'instance', {
       vpc: network.vpc,
       vpcSubnets: {
         subnets: [network.subnet],
       },
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.MEDIUM),
+      instanceType: cdk.aws_ec2.InstanceType.of(cdk.aws_ec2.InstanceClass.M6G, cdk.aws_ec2.InstanceSize.MEDIUM),
       machineImage: latestImage,
       keyName: AppParameters.getInstance().getSSHKeyName(),
       securityGroup: network.securityGroup,
-      role: iam.Role.fromRoleArn(this, 'ec2role', AppParameters.getInstance().getEC2RoleArn()),
+      role: cdk.aws_iam.Role.fromRoleArn(this, 'ec2role', AppParameters.getInstance().getEC2RoleArn()),
       userData,
+      userDataCausesReplacement: true,
     });
 
-    new ec2.CfnEIP(this, 'eip', {
+    new cdk.aws_ec2.CfnEIP(this, 'eip', {
       instanceId: instance.instanceId,
     });
 
-    const volume = new ec2.Volume(this, 'volume', {
-      volumeType: ec2.EbsDeviceVolumeType.GP2,
+    const volume = new cdk.aws_ec2.Volume(this, 'volume', {
+      volumeType: cdk.aws_ec2.EbsDeviceVolumeType.GP2,
       availabilityZone: instance.instanceAvailabilityZone,
       snapshotId: definition.initSnapshot,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
-    new ec2.CfnVolumeAttachment(this, 'volumeAttachment', {
-      instanceId: instance.instanceId,
-      volumeId: volume.volumeId,
-      device: '/dev/sdm',
+    new cdk.CustomResource(this, 'volumeAttachment', {
+      resourceType: 'Custom::VolumeAttachment',
+      serviceToken: volumeAttacher.functionArn,
+      properties: {
+        InstanceId: instance.instanceId,
+        VolumeId: volume.volumeId,
+      },
     });
   }
 }

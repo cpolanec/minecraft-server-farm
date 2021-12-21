@@ -1,6 +1,6 @@
 {
   "name": "minecraft-server-farm",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Resources for running a Minecraft server farm in AWS",
   "license": "MIT",
   "keywords": [
@@ -26,35 +26,31 @@
     "destroy": "cdk destroy --all --force"
   },
   "dependencies": {
-    "@aws-cdk/aws-cloudformation": "1.100.0",
-    "@aws-cdk/aws-ec2": "1.100.0",
-    "@aws-cdk/aws-iam": "1.100.0",
-    "@aws-cdk/aws-lambda-nodejs": "1.100.0",
-    "@aws-cdk/aws-logs": "1.100.0",
-    "@aws-cdk/core": "1.100.0",
-    "@aws-cdk/custom-resources": "1.100.0",
-    "aws-sdk": "^2.890.0",
-    "dotenv": "^8.2.0",
-    "env-var": "^7.0.0",
-    "got": "^11.8.2",
-    "source-map-support": "^0.5.16"
+    "@types/aws-lambda": "8.10.88",
+    "aws-cdk-lib": "2.2.0",
+    "aws-sdk": "2.1047.0",
+    "constructs": "10.0.13",
+    "dotenv": "10.0.0",
+    "env-var": "7.1.1",
+    "got": "11.8.3",
+    "source-map-support": "0.5.21"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.100.0",
-    "@tsconfig/node14": "^1.0.0",
-    "@types/aws-lambda": "^8.10.75",
-    "@types/jest": "^26.0.10",
-    "@types/node": "10.17.27",
-    "@typescript-eslint/eslint-plugin": "^4.21.0",
-    "@typescript-eslint/parser": "^4.21.0",
-    "aws-cdk": "1.97.0",
-    "esbuild": "^0.11.12",
-    "eslint": "^7.23.0",
-    "eslint-config-airbnb-typescript": "^12.3.1",
-    "eslint-plugin-import": "^2.22.1",
-    "jest": "^26.4.2",
-    "ts-jest": "^26.2.0",
-    "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "@aws-cdk/assert": "2.2.0",
+    "@tsconfig/node16": "1.0.2",
+    "@types/jest": "27.0.3",
+    "@types/node": "16.11.7",
+    "@typescript-eslint/eslint-plugin": "5.8.0",
+    "@typescript-eslint/parser": "5.8.0",
+    "aws-cdk": "2.2.0",
+    "esbuild": "0.14.6",
+    "eslint": "8.5.0",
+    "eslint-config-airbnb-typescript": "16.1.0",
+    "eslint-import-resolver-typescript": "2.5.0",
+    "eslint-plugin-import": "2.25.3",
+    "jest": "27.4.5",
+    "ts-jest": "27.1.2",
+    "ts-node": "10.4.0",
+    "typescript": "4.5.4"
   }
 }

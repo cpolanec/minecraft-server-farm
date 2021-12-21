@@ -1,8 +1,7 @@
 import {
   arrayWith, expect, haveResource, haveResourceLike, objectLike,
 } from '@aws-cdk/assert';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';
 import AppParameters from '../lib/app-parameters';
 import NetworkStack from '../lib/network-stack';
 import StackSpecification from '../lib/stack-specification';
@@ -34,7 +33,7 @@ test('validate network has an ACL', () => {
 test('validate network allows ephemeral port access', () => {
   expect(stack).to(haveResourceLike('AWS::EC2::NetworkAclEntry', {
     Egress: false,
-    RuleAction: ec2.Action.ALLOW,
+    RuleAction: cdk.aws_ec2.Action.ALLOW,
     Protocol: 6, // TCP
     PortRange: {
       From: 32768,
@@ -46,7 +45,7 @@ test('validate network allows ephemeral port access', () => {
 test('validate network allows SSH access', () => {
   expect(stack).to(haveResourceLike('AWS::EC2::NetworkAclEntry', {
     Egress: false,
-    RuleAction: ec2.Action.ALLOW,
+    RuleAction: cdk.aws_ec2.Action.ALLOW,
     Protocol: 6, // TCP
     PortRange: {
       From: 22,
@@ -68,7 +67,7 @@ test('validate network allows SSH access', () => {
 test('validate network allows Minecraft client access', () => {
   expect(stack).to(haveResourceLike('AWS::EC2::NetworkAclEntry', {
     Egress: false,
-    RuleAction: ec2.Action.ALLOW,
+    RuleAction: cdk.aws_ec2.Action.ALLOW,
     Protocol: 6, // TCP
     PortRange: {
       From: 25565,
@@ -77,7 +76,7 @@ test('validate network allows Minecraft client access', () => {
   }));
   expect(stack).to(haveResourceLike('AWS::EC2::NetworkAclEntry', {
     Egress: false,
-    RuleAction: ec2.Action.ALLOW,
+    RuleAction: cdk.aws_ec2.Action.ALLOW,
     Protocol: 17, // UDP
     PortRange: {
       From: 25565,
@@ -109,7 +108,7 @@ test('validate network allows Minecraft client access', () => {
 test('validate network allows mcrcon access', () => {
   expect(stack).to(haveResourceLike('AWS::EC2::NetworkAclEntry', {
     Egress: false,
-    RuleAction: ec2.Action.ALLOW,
+    RuleAction: cdk.aws_ec2.Action.ALLOW,
     Protocol: 6, // TCP
     PortRange: {
       From: 25575,
@@ -131,7 +130,7 @@ test('validate network allows mcrcon access', () => {
 test('validate network allows outbound internet access', () => {
   expect(stack).to(haveResourceLike('AWS::EC2::NetworkAclEntry', {
     Egress: true,
-    RuleAction: ec2.Action.ALLOW,
+    RuleAction: cdk.aws_ec2.Action.ALLOW,
     Protocol: -1,
   }));
 });

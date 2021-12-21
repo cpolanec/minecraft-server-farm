@@ -56,7 +56,7 @@ Resources:
     Properties:
       Type: String
       Name: /cdk-bootstrap/mcservers/version
-      Value: "5"
+      Value: "6"
 
 #
 # Change the bucket name below to your desired S3 bucket name
