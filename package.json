@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@types/aws-lambda": "8.10.88",
-    "aws-cdk-lib": "2.2.0",
+    "aws-cdk-lib": "2.3.0",
     "aws-sdk": "2.1047.0",
     "constructs": "10.0.13",
     "dotenv": "10.0.0",
