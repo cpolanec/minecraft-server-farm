@@ -29,7 +29,7 @@
     "@types/aws-lambda": "8.10.88",
     "aws-cdk-lib": "2.2.0",
     "aws-sdk": "2.1047.0",
-    "constructs": "10.0.13",
+    "constructs": "10.0.36",
     "dotenv": "10.0.0",
     "env-var": "7.1.1",
     "got": "11.8.3",
